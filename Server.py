@@ -1,9 +1,9 @@
 import tello
 import cv2
-import datetime
 import os
 import sys
-from time import sleep
+import threading
+from time import sleep, time
 
 class Save_a_road:
     def __init__(self, ip='192.168.10.3', port=8889):
@@ -13,6 +13,22 @@ class Save_a_road:
 
     # self.frame = self.tello.readFrame()
 
+    def move(self):
+        start = time.time()
+
+        if drone.tello.socket is None:
+            print ("tello discnnected")
+        self.tello.send_command('takeoff')
+
+        while True:
+            if time.time() - start > 3:
+                break
+        self.tello.send_command('land')
+
+    def auto_drive(self):
+        drive = threading.Thread(target=self.move)
+        drive.start()
+
 
 def main():
     drone = Save_a_road()
@@ -20,23 +36,12 @@ def main():
     if not drone.tello.tryConnect():
         print ("Connection failed!")
 
+    drone.auto_drive()
+
     try:
         if drone.tello.cap is not None:
             drone.tello.cap.release()
             print ('cap release')
-
-        if drone.tello.socket is None:
-            print ("tello is not connected.")
-            return
-
-        print ("Take off~")
-        drone.tello.send_command('takeoff')
-
-        if drone.tello.socket is None:
-            print ("tello discnnected")
-
-        drone.tello.send_command('land')
-        print ("send land")
 
         sys.exit(0)
 
