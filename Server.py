@@ -1,62 +1,39 @@
+import tello
 import cv2
-import numpy as np
-from socket import *
-import pickle
-from datetime import datetime
+import datetime
+import os
+import sys
+from time import sleep
 
-def image_to_string(img):
-    encode_param=[int(cv2.IMWRITE_JPEG_QUALITY), 90]
-    result, imgencode = cv2.imencode('.jpg', frame, encode_param)
-    data = np.array(imgencode)
-    strData = data.tostring()
+class Save_a_road:
+    def __init__(ip='192.168.10.3', port=8889):
+        self.tello = tello.Tello(ip, port)
 
-if __name__ == "__main__":
+        self.frame = None
+
+    # self.frame = self.tello.readFrame()
+
+
+def main():
+    drone = Save_a_road()
+
+    if not drone.tryConnect():
+        print ("Connection failed!")
 
     try:
+        if drone.tello.cap is not None:
+           drone.tello.cap.release()
+            print ('cap release')
 
-        serverPort = 22990
-        serverSocket = socket(AF_INET, SOCK_STREAM)
-        serverSocket.bind(('', serverPort))
-        serverSocket.listen(1)
+        if self.tello.socket is None:
+            print ("tello is not connected.")
+            return
 
-        print("The server is ready to receive on port", serverPort)
-    
-        # server socket #
+        drone.tello.send_command('takeoff')
+        sleep(3000)
+        drone.tello.send_command('land')
 
-        while True:
-        
-            (connectionSocket, clientAddress) = serverSocket.accept()
-            print('\n\n\n')
+        sys.exit(o)
 
-            # connection socket #
-
-            while True:
-
-                print('Connection requested from', clientAddress)
-	
-                message = connectionSocket.recv(2048)
-                data = ""
-
-                if not message :
-
-                    print('disconnected from', clientAddress)
-                    break
-
-                else:
-
-                    requestCnt = requestCnt + 1
-                    data = message.decode()
-                    print("Command ", data)
-                    print()
-                    
-                    
-            connectionSocket.close()
-
-        print("Server Off")    
-        serverSocket.close()
-
-    except KeyboardInterrupt:
-        print()
-        print("Server Off")
-        serverSocket.close()
-
+    finally:
+        drone.tello.disconnect()
