@@ -6,7 +6,7 @@ import sys
 from time import sleep
 
 class Save_a_road:
-    def __init__(self, ip='192.168.10.22', port=8889):
+    def __init__(self, ip='192.168.10.3', port=8889):
         self.tello = tello.Tello(ip, port)
 
         self.frame = None
@@ -29,13 +29,19 @@ def main():
             print ("tello is not connected.")
             return
 
+        print ("Take off~")
         drone.tello.send_command('takeoff')
-        sleep(3000)
-        drone.tello.send_command('land')
 
-        sys.exit(o)
+        if drone.tello.socket is None:
+            print ("tello discnnected")
+
+        drone.tello.send_command('land')
+        print ("send land")
+
+        sys.exit(0)
 
     finally:
+        print ('exec finally')
         drone.tello.disconnect()
 
 if __name__ == "__main__":
