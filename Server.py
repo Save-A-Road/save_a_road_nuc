@@ -26,13 +26,15 @@ class Save_a_road:
                print ("tello disconnected")
                break
 
-           if self.tello.cap is not None:
+            if self.tello.cap is not None:
                self.frame = self.tello.readFrame()
 
-               if self.frame is not None:
-                   print ("Debug / Captured!")
-                   self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
-            cv2.imwrite('text.jpg', self.frame)
+            if self.frame is not None:
+                print ("Debug / Captured!")
+                pic = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
+
+                pic = cv2.resize(pic, (700, 525))
+            cv2.imwrite('text.jpg', pic)
             self.tello.send_command('takeoff33333')
             sleep (0.5)
 
