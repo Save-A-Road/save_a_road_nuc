@@ -117,6 +117,7 @@ class Tello():
             return False
 
     def disconnect(self):
+        print ("Tello will be terminate")
         if self.videoInput == 'udp://0.0.0.0:11111':
             self.DoNotLandThreadStopFlag = True
             if self.socket is not None:

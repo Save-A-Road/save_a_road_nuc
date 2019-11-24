@@ -11,24 +11,39 @@ class Save_a_road:
 
         self.frame = None
 
-    # self.frame = self.tello.readFrame()
-
     def move(self):
-        start = time.time()
+        # wait for get frame
+        sleep(3)
 
-        if drone.tello.socket is None:
-            print ("tello discnnected")
-        self.tello.send_command('takeoff')
+       # waiting for get frame
+        start = time()
 
         while True:
-            if time.time() - start > 3:
+
+            if time() - start > 5:
                 break
-        self.tello.send_command('land')
+            if self.tello.socket is None:
+               print ("tello disconnected")
+               break
+
+               self.frame = self.tello.readFrame()
+
+            cv2.imwrite('text.jpg', self.frame)
+            self.tello.send_command('takeoff33333')
+            sleep (0.5)
+
+        self.tello.send_command('land33333')
+        self.tello.disconnect()
+
+        if self.tello.cap is not None:
+            self.tello.cap.release()
+            print ('cap release')
+
+
 
     def auto_drive(self):
         drive = threading.Thread(target=self.move)
-        drive.start()
-
+        drive.start() 
 
 def main():
     drone = Save_a_road()
@@ -38,16 +53,7 @@ def main():
 
     drone.auto_drive()
 
-    try:
-        if drone.tello.cap is not None:
-            drone.tello.cap.release()
-            print ('cap release')
-
-        sys.exit(0)
-
-    finally:
-        print ('exec finally')
-        drone.tello.disconnect()
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
