@@ -112,7 +112,7 @@ class Tello():
             self.socket = None
             self.socket_state = None
             self.cap = None
-            self.loggingFunc(error.__str__())
+            print(error.__str__())
             print("catch error")
             return False
 

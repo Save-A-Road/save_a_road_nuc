@@ -6,7 +6,7 @@ import sys
 from time import sleep
 
 class Save_a_road:
-    def __init__(ip='192.168.10.3', port=8889):
+    def __init__(self, ip='192.168.10.22', port=8889):
         self.tello = tello.Tello(ip, port)
 
         self.frame = None
@@ -17,15 +17,15 @@ class Save_a_road:
 def main():
     drone = Save_a_road()
 
-    if not drone.tryConnect():
+    if not drone.tello.tryConnect():
         print ("Connection failed!")
 
     try:
         if drone.tello.cap is not None:
-           drone.tello.cap.release()
+            drone.tello.cap.release()
             print ('cap release')
 
-        if self.tello.socket is None:
+        if drone.tello.socket is None:
             print ("tello is not connected.")
             return
 
@@ -37,3 +37,6 @@ def main():
 
     finally:
         drone.tello.disconnect()
+
+if __name__ == "__main__":
+    main()
