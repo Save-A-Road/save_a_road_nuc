@@ -89,10 +89,6 @@ class Tello():
                 self.receive_state_thread.daemon = True
                 self.receive_state_thread.start()
 
-                self.send_command("command")
-                self.send_command("streamon")
-                self.send_command("battery?")
-
                 self.doNotLand = threading.Thread(target=self.DoNotLand)
                 self.doNotLand.daemon = True
                 self.doNotLand.start()

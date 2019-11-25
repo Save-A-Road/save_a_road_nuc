@@ -29,7 +29,7 @@ class Save_a_road:
 
             # accpet android connection
             android = android_socket.accept()
-            threading.Thread(target=self.send_pic_to_android)
+            threading.Thread(target=self.send_pic_to_android, demon=True)
 
             if time() - start > 5:
                 break
