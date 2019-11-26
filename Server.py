@@ -13,8 +13,9 @@ class Save_a_road:
         self.isDetect = False
         
         try:
-            self.android_socket = socket(AF_INET, SOCK_DGRAM)
+            self.android_socket = socket(AF_INET, SOCK_STREAM)
             self.android_socket.bind(('', 32990))
+            self.android_socket.listen(3)
         except Exception as e:
             print ("Android socket bind fail!")
 
@@ -28,8 +29,8 @@ class Save_a_road:
         while True:
 
             # accpet android connection
-            android = android_socket.accept()
-            threading.Thread(target=self.send_pic_to_android, demon=True)
+            #android = self.android_socket.accept()
+            #threading.Thread(target=self.send_pic_to_android, demon=True)
 
             if time() - start > 5:
                 break
@@ -41,19 +42,16 @@ class Save_a_road:
                self.frame = self.tello.readFrame()
 
             if self.frame is not None:
-                print ("Debug / Captured!")
-                pic = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
-
-                pic = cv2.resize(pic, (700, 525))
+                self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
 
                 # if 담배가 감지되면 android로 사진 전송:
                 #    isDetect = True
 
-            cv2.imwrite('text.jpg', pic)
-            self.tello.send_command('takeoff33333')
+            cv2.imwrite('test.jpg', self.frame)
+            self.tello.send_command('takeoff333')
             sleep (0.5)
 
-        self.tello.send_command('land33333')
+        self.tello.send_command('land333')
         self.tello.disconnect()
 
         if self.tello.cap is not None:
@@ -78,7 +76,8 @@ class Save_a_road:
         
     def auto_drive(self):
         drive = threading.Thread(target=self.move)
-        drive.start() 
+        drive.start()
+        drive.join() 
 
 def main():
     drone = Save_a_road()
