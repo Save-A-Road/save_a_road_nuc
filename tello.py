@@ -89,6 +89,9 @@ class Tello():
                 self.receive_state_thread.daemon = True
                 self.receive_state_thread.start()
 
+                self.send_command('command')
+                self.send_command('streamon')
+
                 self.doNotLand = threading.Thread(target=self.DoNotLand)
                 self.doNotLand.daemon = True
                 self.doNotLand.start()
@@ -126,6 +129,7 @@ class Tello():
             self.socket_state = None
         if self.cap is not None:
             self.cap.release()
+            print ("Tello Release")
         self.cap = None
 
     #Tello 펌웨어가 업데이트되면서 15초동안 아무 command도 들어오지않으면 자동으로 착륙해버리기 때문에 이 함수를 쓰레드로 돌려야한다.
