@@ -11,6 +11,7 @@ class Save_a_road:
         self.tello = tello.Tello(ip, port)
         self.frame = None
         self.isDetect = False
+        self.test = False
         
         try:
             self.android_socket = socket(AF_INET, SOCK_STREAM)
@@ -26,52 +27,65 @@ class Save_a_road:
         # waiting for get frame
         start = time()
 
-        cv2.namedWindow('test', cv2.WINDOW_NORMAL)
+        if self.tello.socket is None:
+            print ("tello disconnected")
+            return 
+        
+        self.tello.send_command('takeoff')
+        sleep(3)
+        self.tello.send_command('up 100')
+        sleep(3)
+        
 
-        while True:
+        try:
+            while True:
 
-            # accpet android connection
-            #android = self.android_socket.accept()
-            #threading.Thread(target=self.send_pic_to_android, demon=True)
+                # accpet android connection
+                #android = self.android_socket.accept()
+                #threading.Thread(target=self.send_pic_to_android, demon=True)
 
-            if time() - start > 30:
-                break
-            if self.tello.socket is None:
-               print ("tello disconnected")
-               break
+                if time() - start > 5:
+                    break
+                if self.tello.socket is None:
+                    print ("tello disconnected")
+                    break
+                
+                self.tello.send_command('takeoff')
+                sleep(3)
+                self.tello.send_command('cw 45')
+                sleep(3)
+                self.tello.send_command('ccw 90')
+                sleep(3)
+                self.tello.send_command('cw 45')
+                sleep(3)
+                self.tello.send_command('1forward 50')
+                sleep(3)
+               
+        finally:
+            self.test = True
+            self.tello.send_command('land')
+            self.tello.disconnect()
 
+    def getFrame(self):
+        print ("GetFrame start!")
+        idx  = 0
+        while not self.test:
             if self.tello.cap is not None:
-               self.frame = self.tello.readFrame()
+                self.frame = self.tello.readFrame()
+                #if self.frame is not None:
+                #self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
 
-            if self.frame is not None:
-                self.frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2RGB)
+                    # if 담배가 감지되면 android로 사진 전송:
+                    #    isDetect = True
+                cv2.imwrite('./temp/test' + str(idx) + '.jpg', self.frame)
                 cv2.imshow('test', self.frame)
+            idx += 1
 
-                # if 담배가 감지되면 android로 사진 전송:
-                #    isDetect = True
-
-            cv2.imwrite('test.jpg', self.frame)
-            self.tello.send_command('takeoff')
-            sleep(3)
-            self.tello.send_command('up 50')
-            sleep(3)
-            self.tello.send_command('1forward 50')
-            sleep(3)
-            self.tello.send_command('cw 45')
-            sleep(3)
-            self.tello.send_command('ccw 90')
-            sleep(3)
-            self.tello.send_command('cw 45')
-            sleep(3)
-
-        self.tello.send_command('land')
-        cv2.destroyAllWindow()
-
+        cv2.destroyAllWindows()
         if self.tello.cap is not None:
             self.tello.cap.release()
             print ('cap release')
-
-        self.tello.disconnect()
+        print ("getFrame end")
 
     def send_pic_to_android(self, conn):
         while True:
@@ -91,9 +105,11 @@ class Save_a_road:
    
 
     def auto_drive(self):
-        drive = threading.Thread(target=self.move)
-        drive.start()
-        drive.join()
+        self.drive = threading.Thread(target=self.move)
+        self.camera = threading.Thread(target=self.getFrame)
+        self.drive.start()
+        self.camera.start()
+        self.drive.join()
         
         print("finish")
  
